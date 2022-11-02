@@ -1,0 +1,22 @@
+<launch>
+  <node pkg="kinect2_bridge" exec="kinect2_bridge" name="kinect2_bridge"  output="screen" >
+    <param name="base_name"            value="kinect2"/>
+    <param name="sensor"               value=""/>
+    <param name="publish_tf"           value="false"/>
+    <param name="base_name_tf"         value="kinect2"/>
+    <param name="fps_limit"            value="-1.0"/>
+    <param name="use_png"              value="false"/>
+    <param name="jpeg_quality"         value="90"/>
+    <param name="png_level"            value="1"/>
+    <param name="depth_method"         value="default"/>
+    <param name="depth_device"         value="-1"/>
+    <param name="reg_method"           value="default"/>
+    <param name="reg_device"           value="-1"/>
+    <param name="max_depth"            value="12.0"/>
+    <param name="min_depth"            value="0.1"/>
+    <param name="queue_size"           value="5"/>
+    <param name="bilateral_filter"     value="true"/>
+    <param name="edge_aware_filter"    value="true"/>
+    <param name="worker_threads"       value="4"/>
+  </node>
+</launch>
