@@ -38,10 +38,10 @@ find_package(geometry_msgs REQUIRED)
 find_package(Boost REQUIRED COMPONENTS)
 find_package(sensor_msgs REQUIRED)
 find_package(cv_bridge REQUIRED)
-# find_package(compressed_depth_image_transport REQUIRED)
+find_package(compressed_depth_image_transport REQUIRED)
 find_package(kinect2_registration REQUIRED)
-find_package(pluginlib REQUIRED)
 find_package(OpenCV REQUIRED)
+find_package(depth_image_proc REQUIRED)
 
 
 
@@ -57,6 +57,7 @@ include_directories(include
   ${OpenCV_INCLUDE_DIRS}
   ${freenect2_INCLUDE_DIRS}
   ${kinect2_registration_INCLUDE_DIRS}
+  ${PCL_INCLUDE_DIRS}
   "${CMAKE_CURRENT_SOURCE_DIR}/include/internal"
 )
 
@@ -70,7 +71,7 @@ add_definitions(-DK2_CALIB_PATH="${PROJECT_SOURCE_DIR}/data/")
 
 add_executable(kinect2_bridge src/kinect2_bridge.cpp)
 ament_target_dependencies(kinect2_bridge
-  # compressed_depth_image_transport
+  compressed_depth_image_transport
   tf2_geometry_msgs
   sensor_msgs
   geometry_msgs
@@ -81,9 +82,9 @@ ament_target_dependencies(kinect2_bridge
   OpenCV
   freenect2
   kinect2_registration
-  pluginlib
 )
 target_link_libraries(kinect2_bridge
+  ${Boost_SYSTEM_LIBRARY}
   ${OpenCV_LIBRARIES}
   ${freenect2_LIBRARY}
   ${kinect2_registration_LIBRARY}

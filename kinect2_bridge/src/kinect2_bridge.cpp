@@ -46,6 +46,9 @@
 #include <sensor_msgs/msg/compressed_image.hpp>
 #include <sensor_msgs/image_encodings.hpp>
 
+//pcls
+#include <sensor_msgs/msg/point_cloud2.hpp>
+
 // #include <tf/transform_broadcaster.h>
 #include "tf2/LinearMath/Quaternion.h"
 #include "tf2/LinearMath/Matrix3x3.h"
@@ -54,8 +57,7 @@
 #include "geometry_msgs/msg/transform_stamped.hpp"
 #include "tf2/convert.h"
 #include "tf2/transform_datatypes.h"
-#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
-// #include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
+#include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
 // #include <compressed_depth_image_transport/compression_common.h>
 
 #include <libfreenect2/libfreenect2.hpp>
@@ -79,6 +81,7 @@ private:
   cv::Mat cameraMatrixColor, distortionColor, cameraMatrixLowRes, cameraMatrixIr, distortionIr, cameraMatrixDepth, distortionDepth;
   cv::Mat rotation, translation;
   cv::Mat map1Color, map2Color, map1Ir, map2Ir, map1LowRes, map2LowRes;
+  cv::Mat lookupX, lookupY;
 
   std::vector<std::thread> threads;
   std::mutex lockIrDepth, lockColor;
@@ -99,7 +102,7 @@ private:
 
   // ros::NodeHandle nh, priv_nh;
   // rclcpp::Node nh;
-  std::shared_ptr<rclcpp::Node> node;
+  rclcpp::Node::SharedPtr node;
   DepthRegistration *depthRegLowRes, *depthRegHighRes;
 
   size_t frameColor, frameIrDepth, pubFrameColor, pubFrameIrDepth;
@@ -152,12 +155,11 @@ private:
 
 public:
   // Kinect2Bridge(const ros::NodeHandle &nh = ros::NodeHandle(), const ros::NodeHandle &priv_nh = ros::NodeHandle("~"))
-  Kinect2Bridge(std::shared_ptr<rclcpp::Node> &node)
+  Kinect2Bridge(rclcpp::Node::SharedPtr &node)
     : sizeColor(1920, 1080), sizeIr(512, 424), sizeLowRes(sizeColor.width / 2, sizeColor.height / 2), color(sizeColor.width, sizeColor.height, 4),
       frameColor(0), frameIrDepth(0), pubFrameColor(0), pubFrameIrDepth(0), lastColor(0, 0), lastDepth(0, 0), nextColor(false), node(node),
       nextIrDepth(false), depthShift(0), running(false), deviceActive(false), clientConnected(false)
   {
-    // auto this->node = rclcpp::Node::make_shared("kinect2_bridge");
     status.resize(COUNT, UNSUBCRIBED);
   }
 
@@ -931,7 +933,7 @@ private:
   {
     setThreadName("Controll");
     RCLCPP_INFO(node->get_logger(),"waiting for clients to connect");
-    callbackStatus();
+    // callbackStatus();
     // double nextFrame = ros::Time::now().toSec() + deltaT;
     // double fpsTime = ros::Time::now().toSec();
     double nextFrame = rclcpp::Clock{}.now().seconds() + deltaT;
@@ -943,6 +945,7 @@ private:
     // for(; running && ros::ok();)
     for(; running && rclcpp::ok();)
     {
+      callbackStatus();
       if(!deviceActive)
       {
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
@@ -1749,6 +1752,7 @@ int main(int argc, char **argv)
   // ros::init(argc, argv, "kinect2_bridge", ros::init_options::AnonymousName);
   rclcpp::init(argc,argv);
   auto node = rclcpp::Node::make_shared("kinect2_bridge");
+
 
   // for(int argI = 1; argI < argc; ++argI)
   // {
