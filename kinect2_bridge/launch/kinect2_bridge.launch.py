@@ -7,25 +7,25 @@ from launch_ros.actions import Node, LoadComposableNodes, ComposableNodeContaine
 from launch_ros.descriptions import ComposableNode
 
 
-parameters=[    {'base_name': 'kinect2'},
-                {'sensor': '004436460547'},
-                {'publish_tf': False},
-                {'fps_limit': -1.0},
-                {'use_png': False},
-                {'jpeg_quality': 90},
-                {'png_level': 1},
-                {'depth_method': 'default'},
-                {'depth_device': -1},
-                {'reg_method': 'default'},
-                {'reg_device': -1},
-                {'max_depth': 12.0},
-                {'min_depth': 0.1},
-                {'queue_size': 5},
-                {'bilateral_filter': True},
-                {'edge_aware_filter': True},
-                {'worker_threads': 4},
-                {'publish_tf': True}]
-                
+parameters=[    {'base_name': 'kinect2',
+                'sensor': '004436460547',
+                'fps_limit': -1.0,
+                'use_png': False,
+                'jpeg_quality': 90,
+                'png_level': 1,
+                'depth_method': 'default',
+                'depth_device': -1,
+                'reg_method': 'default',
+                'reg_device': -1,
+                'max_depth': 12.0,
+                'min_depth': 0.1,
+                'queue_size': 5,
+                'bilateral_filter': True,
+                'edge_aware_filter': True,
+                'worker_threads': 4,
+                'publish_tf': True}]
+
+point_cloud_res='hd' # ['hd','qhd','sd']
 
 def generate_launch_description():
     kinect2 = Node(
@@ -49,10 +49,10 @@ def generate_launch_description():
                 plugin='depth_image_proc::PointCloudXyzrgbNode',
                 name='pointcloud',
                 remappings=[
-                    ("rgb/camera_info", "/kinect2/hd/camera_info"),
-                    ("rgb/image_rect_color", "/kinect2/hd/image_color_rect"),
-                    ("depth_registered/image_rect","/kinect2/hd/image_depth_rect"),
-                    ("points","/kinect2/hd/points")]
+                    ("rgb/camera_info", f"/kinect2/{point_cloud_res}/camera_info"),
+                    ("rgb/image_rect_color", f"/kinect2/{point_cloud_res}/image_color_rect"),
+                    ("depth_registered/image_rect",f"/kinect2/{point_cloud_res}/image_depth_rect"),
+                    ("points",f"/kinect2/{point_cloud_res}/points")]
             ),
         ],
     )

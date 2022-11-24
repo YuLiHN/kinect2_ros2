@@ -100,13 +100,10 @@ private:
   libfreenect2::Freenect2Device::ColorCameraParams colorParams;
   libfreenect2::Freenect2Device::IrCameraParams irParams;
 
-  // ros::NodeHandle nh, priv_nh;
-  // rclcpp::Node nh;
   rclcpp::Node::SharedPtr node;
   DepthRegistration *depthRegLowRes, *depthRegHighRes;
 
   size_t frameColor, frameIrDepth, pubFrameColor, pubFrameIrDepth;
-  // ros::Time lastColor, lastDepth;
   rclcpp::Time lastColor, lastDepth;
 
   bool nextColor, nextIrDepth;
@@ -144,17 +141,14 @@ private:
     COMPRESSED,
     BOTH
   };
-  // std::vector<ros::Publisher> imagePubs, compressedPubs;
   std::vector<rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr> imagePubs;
   std::vector<rclcpp::Publisher<sensor_msgs::msg::CompressedImage>::SharedPtr> compressedPubs;
-  // // ros::Publisher infoHDPub, infoQHDPub, infoIRPub;
   rclcpp::Publisher<sensor_msgs::msg::CameraInfo>::SharedPtr infoHDPub, infoQHDPub, infoIRPub;
 
   sensor_msgs::msg::CameraInfo infoHD, infoQHD, infoIR;
   std::vector<Status> status;
 
 public:
-  // Kinect2Bridge(const ros::NodeHandle &nh = ros::NodeHandle(), const ros::NodeHandle &priv_nh = ros::NodeHandle("~"))
   Kinect2Bridge(rclcpp::Node::SharedPtr &node)
     : sizeColor(1920, 1080), sizeIr(512, 424), sizeLowRes(sizeColor.width / 2, sizeColor.height / 2), color(sizeColor.width, sizeColor.height, 4),
       frameColor(0), frameIrDepth(0), pubFrameColor(0), pubFrameIrDepth(0), lastColor(0, 0), lastDepth(0, 0), nextColor(false), node(node),
@@ -224,17 +218,6 @@ public:
     delete depthRegLowRes;
     delete depthRegHighRes;
 
-    // for(size_t i = 0; i < COUNT; ++i)
-    // {
-    //   imagePubs[i].shutdown();
-    //   compressedPubs[i].shutdown();
-    //   infoHDPub.shutdown();
-    //   infoQHDPub.shutdown();
-    //   infoIRPub.shutdown();
-    // }
-
-    // // nh.shutdown();
-    // this->shutdown();
   }
 
 private:
@@ -261,25 +244,6 @@ private:
     regDefault = "opencl";
 #endif
 
-    // priv_nh.param("base_name", base_name, std::string(K2_DEFAULT_NS));
-    // priv_nh.param("sensor", sensor, std::string(""));
-    // priv_nh.param("fps_limit", fps_limit, -1.0);
-    // priv_nh.param("calib_path", calib_path, std::string(K2_CALIB_PATH));
-    // priv_nh.param("use_png", use_png, false);
-    // priv_nh.param("jpeg_quality", jpeg_quality, 90);
-    // priv_nh.param("png_level", png_level, 1);
-    // priv_nh.param("depth_method", depth_method, depthDefault);
-    // priv_nh.param("depth_device", depth_dev, -1);
-    // priv_nh.param("reg_method", reg_method, regDefault);
-    // priv_nh.param("reg_device", reg_dev, -1);
-    // priv_nh.param("max_depth", maxDepth, 12.0);
-    // priv_nh.param("min_depth", minDepth, 0.1);
-    // priv_nh.param("queue_size", queueSize, 2);
-    // priv_nh.param("bilateral_filter", bilateral_filter, true);
-    // priv_nh.param("edge_aware_filter", edge_aware_filter, true);
-    // priv_nh.param("publish_tf", publishTF, false);
-    // priv_nh.param("base_name_tf", baseNameTF, base_name);
-    // priv_nh.param("worker_threads", worker_threads, 4);
     base_name = node->declare_parameter("base_name", std::string(K2_DEFAULT_NS));
     sensor = node->declare_parameter("sensor", std::string(""));
     fps_limit = node->declare_parameter("fps_limit", -1.0);
@@ -508,13 +472,11 @@ private:
     {
       compression16BitExt = ".png";
       compression16BitString = sensor_msgs::image_encodings::TYPE_16UC1;
-      //  + "; png compressed";
     }
     else
     {
       compression16BitExt = ".tif";
       compression16BitString = sensor_msgs::image_encodings::TYPE_16UC1;
-      //  + "; tiff compressed";
     }
   }
 
@@ -543,21 +505,15 @@ private:
 
     imagePubs.resize(COUNT);
     compressedPubs.resize(COUNT);
-    // ros::SubscriberStatusCallback cb = boost::bind(&Kinect2Bridge::callbackStatus, this);
-    // std::vector<rclcpp::Publisher<sensor_msgs::msg::Image>> imagePubs, compressedPubs;
-    // rclcpp::Publisher<sensor_msgs::msg::Image> infoHDPub, infoQHDPub, infoIRPub;
 
     for(size_t i = 0; i < COUNT; ++i)
     {
-      // imagePubs[i] = nh.advertise<sensor_msgs::Image>(base_name + topics[i], queueSize, cb, cb);
-      // compressedPubs[i] = nh.advertise<sensor_msgs::CompressedImage>(base_name + topics[i] + K2_TOPIC_COMPRESSED, queueSize, cb, cb);
+
       imagePubs[i] = node->create_publisher<sensor_msgs::msg::Image>(base_name + topics[i], queueSize);
       compressedPubs[i] = node->create_publisher<sensor_msgs::msg::CompressedImage>(base_name + topics[i] + K2_TOPIC_COMPRESSED, queueSize);
       
     }
-    // infoHDPub = nh.advertise<sensor_msgs::CameraInfo>(base_name + K2_TOPIC_HD + K2_TOPIC_INFO, queueSize, cb, cb);
-    // infoQHDPub = nh.advertise<sensor_msgs::CameraInfo>(base_name + K2_TOPIC_QHD + K2_TOPIC_INFO, queueSize, cb, cb);
-    // infoIRPub = nh.advertise<sensor_msgs::CameraInfo>(base_name + K2_TOPIC_SD + K2_TOPIC_INFO, queueSize, cb, cb);
+
 
     infoHDPub = node->create_publisher<sensor_msgs::msg::CameraInfo>(base_name + K2_TOPIC_HD + K2_TOPIC_INFO, queueSize);
     infoQHDPub = node->create_publisher<sensor_msgs::msg::CameraInfo>(base_name + K2_TOPIC_QHD + K2_TOPIC_INFO, queueSize);
@@ -804,24 +760,20 @@ private:
     const double *itR = rotation.ptr<double>(0, 0);
     for(size_t i = 0; i < 9; ++i, ++itR)
     {
-      // cameraInfo.R[i] = *itR;
       cameraInfo.r[i] = *itR;
     }
 
     const double *itP = projection.ptr<double>(0, 0);
     for(size_t i = 0; i < 12; ++i, ++itP)
     {
-      // cameraInfo.P[i] = *itP;
       cameraInfo.p[i] = *itP;
     }
 
     cameraInfo.distortion_model = "plumb_bob";
-    // cameraInfo.D.resize(distortion.cols);
     cameraInfo.d.resize(distortion.cols);
     const double *itD = distortion.ptr<double>(0, 0);
     for(size_t i = 0; i < (size_t)distortion.cols; ++i, ++itD)
     {
-      // cameraInfo.D[i] = *itD;
       cameraInfo.d[i] = *itD;
     }
   }
@@ -893,12 +845,10 @@ private:
     for(size_t i = 0; i < COUNT; ++i)
     {
       Status s = UNSUBCRIBED;
-      // if(imagePubs[i].getNumSubscribers() > 0)
       if(imagePubs[i]->get_subscription_count() > 0)
       {
         s = RAW;
       }
-      // if(compressedPubs[i].getNumSubscribers() > 0)
       if(compressedPubs[i]->get_subscription_count() > 0)
       {
         s = s == RAW ? BOTH : COMPRESSED;
@@ -915,12 +865,10 @@ private:
 
       status[i] = s;
     }
-    // if(infoHDPub.getNumSubscribers() > 0 || infoQHDPub.getNumSubscribers() > 0)
     if(infoHDPub->get_subscription_count() > 0 || infoQHDPub->get_subscription_count() > 0)
     {
       isSubscribedColor = true;
     }
-    // if(infoIRPub.getNumSubscribers() > 0)
     if(infoIRPub->get_subscription_count() > 0)
     {
       isSubscribedDepth = true;
@@ -933,29 +881,23 @@ private:
   {
     setThreadName("Controll");
     RCLCPP_INFO(node->get_logger(),"waiting for clients to connect");
-    // callbackStatus();
-    // double nextFrame = ros::Time::now().toSec() + deltaT;
-    // double fpsTime = ros::Time::now().toSec();
     double nextFrame = rclcpp::Clock{}.now().seconds() + deltaT;
     double fpsTime = rclcpp::Clock{}.now().seconds();
     size_t oldFrameIrDepth = 0, oldFrameColor = 0;
     nextColor = true;
     nextIrDepth = true;
 
-    // for(; running && ros::ok();)
     for(; running && rclcpp::ok();)
     {
       callbackStatus();
       if(!deviceActive)
       {
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        // fpsTime =  ros::Time::now().toSec();
         fpsTime =  rclcpp::Clock{}.now().seconds();
         nextFrame = fpsTime + deltaT;
         continue;
       }
 
-      // double now = ros::Time::now().toSec();
       double now = rclcpp::Clock{}.now().seconds();
 
       if(now - fpsTime >= 3.0)
@@ -1200,7 +1142,6 @@ private:
       newFrames = true;
       listener->waitForNewFrame(frames);
 #endif
-      // if(!deviceActive || !running || !ros::ok())
       if(!deviceActive || !running || !rclcpp::ok())
       {
         if(newFrames)
@@ -1213,10 +1154,8 @@ private:
     return newFrames;
   }
 
-  // std_msgs::Header createHeader(ros::Time &last, ros::Time &other)
   std_msgs::msg::Header createHeader(rclcpp::Time &last, rclcpp::Time &other)
   {
-    // ros::Time timestamp = ros::Time::now();
     rclcpp::Time timestamp = rclcpp::Clock{}.now();
     rclcpp::Time zero(0, 0);
     lockSync.lock();
@@ -1227,20 +1166,17 @@ private:
     else
     {
       timestamp = other;
-      // other = ros::Time(0, 0);
       other = rclcpp::Time(0, 0);
     }
     lockSync.unlock();
 
     std_msgs::msg::Header header;
-    // header.seq = 0;
     header.stamp = timestamp;
     return header;
   }
 
   void processIrDepth(const cv::Mat &depth, std::vector<cv::Mat> &images, const std::vector<Status> &status)
   {
-    // COLOR registered to depth
     if(status[COLOR_SD_RECT])
     {
       cv::Mat tmp;
@@ -1336,17 +1272,14 @@ private:
     }
   }
 
-  // void publishImages(const std::vector<cv::Mat> &images, const std_msgs::Header &header, const std::vector<Status> &status, const size_t frame, size_t &pubFrame, const size_t begin, const size_t end)
   void publishImages(const std::vector<cv::Mat> &images, const std_msgs::msg::Header &header, const std::vector<Status> &status, const size_t frame, size_t &pubFrame, const size_t begin, const size_t end)
   {
-    // std::vector<sensor_msgs::ImagePtr> imageMsgs(COUNT);
-    // std::vector<sensor_msgs::CompressedImagePtr> compressedMsgs(COUNT);
+
 
     std::vector<sensor_msgs::msg::Image> imageMsgs(COUNT);
     std::vector<sensor_msgs::msg::CompressedImage> compressedMsgs(COUNT);
 
-    // sensor_msgs::CameraInfoPtr infoHDMsg,  infoQHDMsg,  infoIRMsg;
-    // std_msgs::Header _header = header;
+
 
     sensor_msgs::msg::CameraInfo infoHDMsg,  infoQHDMsg,  infoIRMsg;
     std_msgs::msg::Header _header = header;
@@ -1355,9 +1288,6 @@ private:
     {
       _header.frame_id = baseNameTF + K2_TF_IR_OPT_FRAME;
 
-      // infoIRMsg = sensor_msgs::CameraInfoPtr(new sensor_msgs::CameraInfo);
-      // infoIRMsg = sensor_msgs::msg::CameraInfo();
-
       infoIRMsg = infoIR;
       infoIRMsg.header = _header;
     }
@@ -1365,11 +1295,9 @@ private:
     {
       _header.frame_id = baseNameTF + K2_TF_RGB_OPT_FRAME;
 
-      // infoHDMsg = sensor_msgs::msg::CameraInfo::ConstSharedPtr(new sensor_msgs::msg::CameraInfo);
       infoHDMsg = infoHD;
       infoHDMsg.header = _header;
 
-      // infoQHDMsg = sensor_msgs::msg::CameraInfo::ConstSharedPtr(new sensor_msgs::msg::CameraInfo);
       infoQHDMsg = infoQHD;
       infoQHDMsg.header = _header;
 
@@ -1391,16 +1319,12 @@ private:
       case UNSUBCRIBED:
         break;
       case RAW:
-        // imageMsgs[i] = sensor_msgs::ImagePtr(new sensor_msgs::Image);
         createImage(images[i], _header, Image(i), imageMsgs[i]);
         break;
       case COMPRESSED:
-        // compressedMsgs[i] = sensor_msgs::CompressedImagePtr(new sensor_msgs::CompressedImage);
         createCompressed(images[i], _header, Image(i), compressedMsgs[i]);
         break;
       case BOTH:
-        // imageMsgs[i] = sensor_msgs::ImagePtr(new sensor_msgs::Image);
-        // compressedMsgs[i] = sensor_msgs::CompressedImagePtr(new sensor_msgs::CompressedImage);
         createImage(images[i], _header, Image(i), imageMsgs[i]);
         createCompressed(images[i], _header, Image(i), compressedMsgs[i]);
         break;
@@ -1433,7 +1357,6 @@ private:
 
     if(begin < COLOR_HD)
     {
-      // if(infoIRPub.getNumSubscribers() > 0)
       if(infoIRPub->get_subscription_count() > 0)
       {
         infoIRPub->publish(infoIRMsg);
@@ -1441,12 +1364,10 @@ private:
     }
     else
     {
-      // if(infoHDPub.getNumSubscribers() > 0)
       if(infoHDPub->get_subscription_count() > 0)
       {
         infoHDPub->publish(infoHDMsg);
       }
-      // if(infoQHDPub.getNumSubscribers() > 0)
       if(infoQHDPub->get_subscription_count() > 0)
       {
         infoQHDPub->publish(infoQHDMsg);
@@ -1457,7 +1378,6 @@ private:
     lockPub.unlock();
   }
 
-  // void createImage(const cv::Mat &image, const std_msgs::Header &header, const Image type, sensor_msgs::Image &msgImage) const
   void createImage(const cv::Mat &image, const std_msgs::msg::Header &header, const Image type, sensor_msgs::msg::Image &msgImage) const
   {
     size_t step, size;
@@ -1500,7 +1420,6 @@ private:
     memcpy(msgImage.data.data(), image.data, size);
   }
 
-  // void createCompressed(const cv::Mat &image, const std_msgs::Header &header, const Image type, sensor_msgs::CompressedImage &msgImage) const
   void createCompressed(const cv::Mat &image, const std_msgs::msg::Header &header, const Image type, sensor_msgs::msg::CompressedImage &msgImage) const
   {
     msgImage.header = header;
@@ -1522,7 +1441,6 @@ private:
     case COLOR_QHD:
     case COLOR_QHD_RECT:
       msgImage.format = sensor_msgs::image_encodings::BGR8;
-      //  + "; jpeg compressed bgr8";
       cv::imencode(".jpg", image, msgImage.data, compressionParams);
       break;
     case MONO_HD:
@@ -1530,7 +1448,6 @@ private:
     case MONO_QHD:
     case MONO_QHD_RECT:
       msgImage.format = sensor_msgs::image_encodings::TYPE_8UC1;
-      //  + "; jpeg compressed ";
       cv::imencode(".jpg", image, msgImage.data, compressionParams);
       break;
     case COUNT:
@@ -1541,55 +1458,40 @@ private:
   void publishStaticTF()
   {
     setThreadName("TFPublisher");
-    // tf::TransformBroadcaster broadcaster;
-    // tf2_ros::TransformBroadcaster broadcaster;
     std::shared_ptr<tf2_ros::TransformBroadcaster> broadcaster = std::make_shared<tf2_ros::TransformBroadcaster>(node);
-    // tf::StampedTransform stColorOpt, stIrOpt;
     geometry_msgs::msg::TransformStamped stColorOpt, stIrOpt; //http://wiki.ros.org/tf2/Tutorials/Migration/DataConversions
-    // ros::Time now = ros::Time::now();
     rclcpp::Time now = rclcpp::Clock{}.now();
 
-    // tf::Matrix3x3 rot(rotation.at<double>(0, 0), rotation.at<double>(0, 1), rotation.at<double>(0, 2),
-    //                   rotation.at<double>(1, 0), rotation.at<double>(1, 1), rotation.at<double>(1, 2),
-    //                   rotation.at<double>(2, 0), rotation.at<double>(2, 1), rotation.at<double>(2, 2));
+
 
     tf2::Matrix3x3 rot(rotation.at<double>(0, 0), rotation.at<double>(0, 1), rotation.at<double>(0, 2),
                       rotation.at<double>(1, 0), rotation.at<double>(1, 1), rotation.at<double>(1, 2),
                       rotation.at<double>(2, 0), rotation.at<double>(2, 1), rotation.at<double>(2, 2));
 
-    // tf::Quaternion qZero;
     tf2::Quaternion qZero;
     qZero.setRPY(0, 0, 0);
-    // tf::Vector3 trans(translation.at<double>(0), translation.at<double>(1), translation.at<double>(2));
-    // tf::Vector3 vZero(0, 0, 0);
-    // tf::Transform tIr(rot, trans), tZero(qZero, vZero);
+
 
     tf2::Vector3 trans(translation.at<double>(0), translation.at<double>(1), translation.at<double>(2));
     tf2::Vector3 vZero(0, 0, 0);
     tf2::Transform tIr(rot, trans), tZero(qZero, vZero);
 
-    // stColorOpt = tf::StampedTransform(tZero, now, baseNameTF + K2_TF_LINK, baseNameTF + K2_TF_RGB_OPT_FRAME);
-    // stIrOpt = tf::StampedTransform(tIr, now, baseNameTF + K2_TF_RGB_OPT_FRAME, baseNameTF + K2_TF_IR_OPT_FRAME);
-    // stColorOpt.transform = tZero;
+
     tf2::convert<tf2::Transform, geometry_msgs::msg::Transform> (tZero, stColorOpt.transform);
     stColorOpt.header.stamp = now;
     stColorOpt.header.frame_id = baseNameTF + K2_TF_LINK;
     stColorOpt.child_frame_id = baseNameTF + K2_TF_RGB_OPT_FRAME;
 
-    // stIrOpt.transform = tIr;
     tf2::convert<tf2::Transform, geometry_msgs::msg::Transform> (tIr, stIrOpt.transform);
     stIrOpt.header.stamp = now;
     stIrOpt.header.frame_id = baseNameTF + K2_TF_RGB_OPT_FRAME;
     stIrOpt.child_frame_id = baseNameTF + K2_TF_IR_OPT_FRAME;
     
 
-    // for(; running && ros::ok();)
     for(; running && rclcpp::ok(); )
     {
-      // now = ros::Time::now();
       now = rclcpp::Clock{}.now();
-      // stColorOpt.stamp_ = now;
-      // stIrOpt.stamp_ = now;
+
 
       stColorOpt.header.stamp = now;
       stIrOpt.header.stamp = now;
@@ -1611,74 +1513,6 @@ private:
   }
 };
 
-// class Kinect2BridgeNodelet : public nodelet::Nodelet
-// {
-// private:
-//   Kinect2Bridge *pKinect2Bridge;
-
-// public:
-//   Kinect2BridgeNodelet() : Nodelet(), pKinect2Bridge(NULL)
-//   {
-//   }
-
-//   ~Kinect2BridgeNodelet()
-//   {
-//     if(pKinect2Bridge)
-//     {
-//       pKinect2Bridge->stop();
-//       delete pKinect2Bridge;
-//     }
-//   }
-
-//   virtual void onInit()
-//   {
-//     pKinect2Bridge = new Kinect2Bridge(getNodeHandle(), getPrivateNodeHandle());
-//     if(!pKinect2Bridge->start())
-//     {
-//       delete pKinect2Bridge;
-//       pKinect2Bridge = NULL;
-//       throw nodelet::Exception("Could not start kinect2_bridge!");
-//     }
-//   }
-// };
-
-// class Kinect2BridgeNode : public rclcpp::Node
-// {
-// private:
-//   Kinect2Bridge *pKinect2Bridge;
-
-// public:
-//   Kinect2BridgeNode() : rclcpp::Node(), pKinect2Bridge(NULL)
-//   {
-//   }
-
-//   ~Kinect2BridgeNode()
-//   {
-//     if(pKinect2Bridge)
-//     {
-//       pKinect2Bridge->stop();
-//       delete pKinect2Bridge;
-//     }
-//   }
-
-//   virtual void onInit()
-//   {
-//     // auto node = rclcpp::Node("nh");
-//     // pKinect2Bridge = new Kinect2Bridge(node);
-//     // if(!pKinect2Bridge->start())
-//     {
-//       delete pKinect2Bridge;
-//       pKinect2Bridge = NULL;
-//       // throw nodelet::Exception("Could not start kinect2_bridge!");
-//     }
-//   }
-// };
-
-// #include <pluginlib/class_list_macros.h>
-// PLUGINLIB_EXPORT_CLASS(Kinect2BridgeNodelet, nodelet::Nodelet)
-
-// #include <pluginlib/class_list_macros.h>
-// PLUGINLIB_EXPORT_CLASS(Kinect2BridgeNode, rclcpp::Node)
 
 void helpOption(const std::string &name, const std::string &stype, const std::string &value, const std::string &desc)
 {
@@ -1749,30 +1583,10 @@ int main(int argc, char **argv)
   }
 #endif
 
-  // ros::init(argc, argv, "kinect2_bridge", ros::init_options::AnonymousName);
   rclcpp::init(argc,argv);
   auto node = rclcpp::Node::make_shared("kinect2_bridge");
 
 
-  // for(int argI = 1; argI < argc; ++argI)
-  // {
-  //   std::string arg(argv[argI]);
-
-  //   if(arg == "--help" || arg == "--h" || arg == "-h" || arg == "-?" || arg == "--?")
-  //   {
-  //     help(argv[0]);
-  //     // ros::shutdown();
-  //     rclcpp::shutdown();
-  //     return 0;
-  //   }
-  //   else
-  //   {
-  //     RCLCPP_ERROR_STREAM(node->get_logger(),"Unknown argument: " << arg);
-  //     return -1;
-  //   }
-  // }
-
-  // if(!ros::ok())
   if(!rclcpp::ok())
   {
     RCLCPP_ERROR(node->get_logger(),"ros::ok failed!");
