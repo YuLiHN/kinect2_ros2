@@ -1,14 +1,14 @@
 # IAI Kinect2 for ROS2
 
 Migration from ROS1.
-Original Repository: https://github.com/code-iai/iai_kinect2
-this work is based on OpenCV4 version: https://github.com/paul-shuvo/iai_kinect2_opencv4
+Original Repository: https://github.com/code-iai/iai_kinect2.
+this work is based on OpenCV4 version: https://github.com/paul-shuvo/iai_kinect2_opencv4.
 
 
 ## Install:
 
-1. Install the ROS2 humble
-2. Install [libfreenect2](https://github.com/OpenKinect/libfreenect2):
+1. Install the ROS2 humble.
+2. Install [libfreenect2](https://github.com/OpenKinect/libfreenect2).
 3. clone this repo to your workspace and build it
 ```bash
     cd ~/catkin_ws/src/
@@ -21,7 +21,7 @@ this work is based on OpenCV4 version: https://github.com/paul-shuvo/iai_kinect2
 
 ## Usage:
 ```
-roslaunch kinect2_bridge kinect2_bridge.launch.py
+ros2 launch kinect2_bridge kinect2_bridge.launch.py
 ```
 and visualize the results in rviz2
 ```
