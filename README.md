@@ -19,6 +19,15 @@ this work is based on OpenCV4 version: https://github.com/paul-shuvo/iai_kinect2
     colcon build
 ```
 
+Note: if you have runtime error like this:
+```
+[kinect2_bridge-1] error while loading shared libraries: libfreenect2.so.0.2: cannot open shared object file: No such file or directory
+```
+you could establish a symbolic link in usr lib folder like:
+```
+sudo ln -s $PATH_TO_LIBFREENECT2/freenect2/lib/libfreenect2.so.0.2 /usr/lib/libfreenect2.so.0.2
+```
+
 ## Usage:
 ```
 ros2 launch kinect2_bridge kinect2_bridge.launch.py
