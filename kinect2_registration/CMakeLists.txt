@@ -101,7 +101,7 @@ if(DEPTH_REG_OPENCL)
 endif()
 
 add_library(kinect2_registration SHARED src/kinect2_registration.cpp ${MODULES})
-message(${MODULE_LIBS})
+message("${MODULE_LIBS}")
 ament_target_dependencies(kinect2_registration
   rclcpp
   std_msgs
